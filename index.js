@@ -223,7 +223,11 @@ app.get('/usuarios', async (req, res) => {
     }
   });
 
+
+
+
   //salas
+
   app.get('/salas', async (req, res) => {
     try {
       const { bloco } = req.query;
@@ -231,7 +235,7 @@ app.get('/usuarios', async (req, res) => {
       let params = [];
       
       if (bloco) {
-        query += ' WHERE nome LIKE ?';
+        query += ' WHERE bloco LIKE ?';
         params.push(`%${bloco}%`);
       }
   
@@ -288,7 +292,211 @@ app.get('/usuarios', async (req, res) => {
     }
   });
   
+
+
+
   //incidentes
+
+  app.get('/incidentes', async (req, res) => {
+    try {
+      const { titulo } = req.query;
+      let query = 'SELECT * FROM incidentes';
+      let params = [];
+      
+      if (titulo) {
+        query += ' WHERE titulo LIKE ?';
+        params.push(`%${titulo}%`);
+      }
+  
+      const [rows] = await pool.query(query, params);
+      res.json(rows);
+    } catch (error) {
+      console.error("Erro ao recuperar incidentes:", error);
+      res.status(500).send("Erro ao recuperar incidentes");
+    }
+  });
+  
+  app.post('/incidentes', async (req, res) => {
+    try {
+      const { users_id, sala_id,titulo,descricao,data_hora,status} = req.body;
+      const [result] = await pool.query('INSERT INTO incidentes (users_id, sala_id,titulo,descricao,data_hora,status) VALUES (?, ?,?,?,?,?)', [users_id, sala_id,titulo,descricao,data_hora,status]);
+      res.json({ id: result.insertId, users_id:users_id, sala_id:sala_id, titulo:titulo, descricao:descricao, data_hora:data_hora, status:status});
+    } catch (error) {
+      console.error("Erro ao criar incidentes:", error);
+      res.status(500).send("Erro ao criar incidentes");
+    }
+  });
+  
+  app.put('/incidentes/:id', async (req, res) => {
+    try {
+      const { users_id, sala_id,titulo,descricao,data_hora,status} = req.body;
+      const { id } = req.params;
+      await pool.query('UPDATE incidentes SET users_id = ?, sala_id = ? , titulo = ?, descricao = ?, data_hora = ? , status = ? WHERE id = ?', [users_id, sala_id,titulo,descricao,data_hora,status, id]);
+      res.status(200).json({id: id, users_id:users_id, sala_id:sala_id, titulo:titulo, descricao:descricao, data_hora:data_hora, status:status});
+    } catch (error) {
+      console.error("Erro ao atualizar incidentes:", error);
+      res.status(500).send("Erro ao atualizar incidentes");
+    }
+  });
+  
+  app.delete('/incidentes/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await pool.query('DELETE FROM incidentes WHERE id = ?', [id]);
+      res.status(200).json({ id: Number(id) });
+    } catch (error) {
+      console.error("Erro ao deletar incidentes:", error);
+      res.status(500).send("Erro ao deletar incidentes");
+    }
+  });
+  
+  app.get('/incidentes/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [rows] = await pool.query('SELECT * FROM incidentes WHERE id = ?', [id]);
+      res.status(200).json(rows);
+    } catch (error) {
+      console.error("Erro ao buscar incidentes:", error);
+      res.status(500).send("Erro ao buscar incidentes");
+    }
+  });
+
+
+
+  //dispositivos
+
+  app.get('/dispositivos', async (req, res) => {
+    try {
+      const { name } = req.query;
+      let query = 'SELECT * FROM dispositivos';
+      let params = [];
+      
+      if (name) {
+        query += ' WHERE name LIKE ?';
+        params.push(`%${name}%`);
+      }
+  
+      const [rows] = await pool.query(query, params);
+      res.json(rows);
+    } catch (error) {
+      console.error("Erro ao recuperar dispositivos:", error);
+      res.status(500).send("Erro ao recuperar dispositivos");
+    }
+  });
+  
+  app.post('/dispositivos', async (req, res) => {
+    try {
+      const {sala_id, name, localizacao, descricao} = req.body;
+      const [result] = await pool.query('INSERT INTO dispositivos (sala_id, name, localizacao, descricao) VALUES (?, ?, ?, ?)', [sala_id, name, localizacao, descricao]);
+      res.json({ id: result.insertId, sala_id:sala_id, name:name, localizacao:localizacao, descricao:descricao});
+    } catch (error) {
+      console.error("Erro ao criar dispositivos:", error);
+      res.status(500).send("Erro ao criar dispositivos");
+    }
+  });
+  
+  app.put('/dispositivos/:id', async (req, res) => {
+    try {
+      const { sala_id, name, localizacao, descricao} = req.body;
+      const { id } = req.params;
+      await pool.query('UPDATE dispositivos SET sala_id = ?, name = ?, localizacao = ?, descricao = ? WHERE id = ?', [sala_id, name, localizacao, descricao, id]);
+      res.status(200).json({id: id,  sala_id:sala_id, name:name, localizacao:localizacao, descricao:descricao});
+    } catch (error) {
+      console.error("Erro ao atualizar dispositivos:", error);
+      res.status(500).send("Erro ao atualizar dispositivos");
+    }
+  });
+  
+  app.delete('/dispositivos/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await pool.query('DELETE FROM dispositivos WHERE id = ?', [id]);
+      res.status(200).json({ id: Number(id) });
+    } catch (error) {
+      console.error("Erro ao deletar dispositivos:", error);
+      res.status(500).send("Erro ao deletar dispositivos");
+    }
+  });
+  
+  app.get('/dispositivos/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [rows] = await pool.query('SELECT * FROM dispositivos WHERE id = ?', [id]);
+      res.status(200).json(rows);
+    } catch (error) {
+      console.error("Erro ao buscar dispositivos:", error);
+      res.status(500).send("Erro ao buscar dispositivos");
+    }
+  });
+
+
+
+
+  //incidentes_dispositivos
+
+  app.get('/incidentes_dispositivos', async (req, res) => {
+    try {
+      const { name } = req.query;
+      let query = 'SELECT * FROM incidentes_dispositivos';
+      let params = [];
+      
+      if (name) {
+        query += ' WHERE name LIKE ?';
+        params.push(`%${name}%`);
+      }
+  
+      const [rows] = await pool.query(query, params);
+      res.json(rows);
+    } catch (error) {
+      console.error("Erro ao recuperar incidentes com dispositivos:", error);
+      res.status(500).send("Erro ao recuperar incidentes com dispositivos");
+    }
+  });
+  
+  app.post('/incidentes_dispositivos', async (req, res) => {
+    try {
+      const {incidentes_id,	dispositivos_id, descricao} = req.body;
+      const [result] = await pool.query('INSERT INTO incidentes_dispositivos (incidentes_id,	dispositivos_id,	descricao) VALUES (?, ?, ?)', [incidentes_id,	dispositivos_id,	descricao]);
+      res.json({ id: result.insertId, incidentes_id:incidentes_id, dispositivos_id:dispositivos_id, descricao:descricao});
+    } catch (error) {
+      console.error("Erro ao criar incidentes com dispositivos:", error);
+      res.status(500).send("Erro ao criar incidentes com dispositivos");
+    }
+  });
+  
+  app.put('/incidentes_dispositivos/:id', async (req, res) => {
+    try {
+      const { incidentes_id,	dispositivos_id, descricao} = req.body;
+      const { id } = req.params;
+      await pool.query('UPDATE incidentes_dispositivos SET incidentes_id = ?,	dispositivos_id = ?, descricao = ? WHERE id = ?', [incidentes_id,	dispositivos_id, descricao, id]);
+      res.status(200).json({id: id, incidentes_id:incidentes_id,	dispositivos_id:dispositivos_id,	descricao:descricao});
+    } catch (error) {
+      console.error("Erro ao atualizar incidentes com dispositivos:", error);
+      res.status(500).send("Erro ao atualizar incidentes com dispositivos");
+    }
+  });
+  
+  app.delete('/incidentes_dispositivos/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await pool.query('DELETE FROM incidentes_dispositivos WHERE id = ?', [id]);
+      res.status(200).json({ id: Number(id) });
+    } catch (error) {
+      console.error("Erro ao deletar incidentes com dispositivos:", error);
+      res.status(500).send("Erro ao deletar incidentes com dispositivos");
+    }
+  });
+  
+  app.get('/incidentes_dispositivos/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [rows] = await pool.query('SELECT * FROM incidentes_dispositivos WHERE id = ?', [id]);
+      res.status(200).json(rows);
+    } catch (error) {
+      console.error("Erro ao buscar incidentes com dispositivos:", error);
+      res.status(500).send("Erro ao buscar incidentes com dispositivos");
+    }
+  });
 
   const server = app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
